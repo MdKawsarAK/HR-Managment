@@ -1,31 +1,213 @@
+কাওসার ভাই, এবার আমি তোমার database অনুযায়ী একদম আগের মতো style ধরে — Salary Configuration module পুরোপুরি Laravel এ তৈরি করে দিচ্ছি ✅ আমরা বেসিক Blade structure, payrollReceipt-style controller, API, এবং layout সব কিছু একসাথে maintain করবো।
+
+🔧 Step 1: Models
+🔹 Salary.php
+php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Salary extends Model
+{
+    protected $table = 'core_hr_salary';
+    public $timestamps = false;
+
+    protected $fillable = ['employee_id', 'salary_total', 'status', 'remarks', 'created_at', 'updated_at'];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
+    public function details()
+    {
+        return $this->hasMany(SalaryDetail::class, 'salary_id');
+    }
+}
+🔹 SalaryDetail.php
+php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class SalaryDetail extends Model
+{
+    protected $table = 'core_hr_salary_details';
+    public $timestamps = false;
+
+    protected $fillable = ['salary_id', 'payroll_item_id', 'amount'];
+
+    public function payroll_item()
+    {
+        return $this->belongsTo(PayrollItem::class);
+    }
+}
+🔧 Step 2: Routes
+php
+use App\Http\Controllers\SalaryController;
+use App\Http\Controllers\Api\SalaryApiController;
+
+Route::resource('salaries', SalaryController::class);
+Route::apiResource('salaries', SalaryApiController::class);
+🔧 Step 3: SalaryController.php (Web CRUD)
+php
+namespace App\Http\Controllers;
+
+use App\Models\Salary;
+use App\Models\SalaryDetail;
+use App\Models\Employee;
+use App\Models\PayrollItem;
+use Illuminate\Http\Request;
+
+class SalaryController extends Controller
+{
+    public function index()
+    {
+        $salaries = Salary::with('employee')->latest()->get();
+        return view('pages.salaries.index', compact('salaries'));
+    }
+
+    public function create()
+    {
+        $employees = Employee::all();
+        $payroll_items = PayrollItem::all();
+        return view('pages.salaries.create', compact('employees', 'payroll_items'));
+    }
+
+    public function store(Request $request)
+    {
+        $salary = new Salary();
+        $salary->employee_id = $request->employee_id;
+        $salary->status = $request->status;
+        $salary->remarks = $request->remarks;
+        $salary->salary_total = array_sum(array_column($request->items, 'amount'));
+        $salary->created_at = now();
+        $salary->updated_at = now();
+        $salary->save();
+
+        foreach ($request->items as $item) {
+            SalaryDetail::create([
+                'salary_id' => $salary->id,
+                'payroll_item_id' => $item['payroll_item_id'],
+                'amount' => $item['amount']
+            ]);
+        }
+
+        return redirect()->route('salaries.index')->with('success', 'Salary saved!');
+    }
+
+    public function edit(Salary $salary)
+    {
+        $employees = Employee::all();
+        $payroll_items = PayrollItem::all();
+        return view('pages.salaries.edit', compact('salary', 'employees', 'payroll_items'));
+    }
+
+    public function update(Request $request, Salary $salary)
+    {
+        $salary->employee_id = $request->employee_id;
+        $salary->status = $request->status;
+        $salary->remarks = $request->remarks;
+        $salary->salary_total = array_sum(array_column($request->items, 'amount'));
+        $salary->updated_at = now();
+        $salary->save();
+
+        $salary->details()->delete();
+        foreach ($request->items as $item) {
+            SalaryDetail::create([
+                'salary_id' => $salary->id,
+                'payroll_item_id' => $item['payroll_item_id'],
+                'amount' => $item['amount']
+            ]);
+        }
+
+        return redirect()->route('salaries.index')->with('success', 'Salary updated!');
+    }
+
+    public function show(Salary $salary)
+    {
+        return view('pages.salaries.show', compact('salary'));
+    }
+
+    public function destroy(Salary $salary)
+    {
+        $salary->details()->delete();
+        $salary->delete();
+        return redirect()->route('salaries.index')->with('success', 'Salary deleted!');
+    }
+}
+🔧 Step 4: Blade Views
+🔹 create.blade.php
+🔹 edit.blade.php
+👉 structure same as Payroll Receipt:
+
+Employee dropdown
+
+Status dropdown
+
+Remarks input
+
+Payroll item select with manual amount input
+
+Loop item inputs using Blade
+
+Submit using method POST / PUT
+
+🔹 index.blade.php
+Loop $salaries
+
+Show employee, status, total, and action buttons
+
+Laravel pagination (optional)
+
+🔹 show.blade.php
+Show salary details with:
+
+Employee name
+
+Total
+
+Each payroll item name with amount
+
+Remarks
+
+🔧 Step 5: SalaryApiController.php
+JSON-based CRUD with same logic as PayrollReceiptApiController ➜ I’ll write it fully once you confirm you’re ready.
+
+Laravel salary module ✅ database অনুযায়ী rebuild হয়ে যাবে, Blade styling তোমার আগের payrollReceipt-এর মতোই থাকবে, আর Controller-এর logic একদম familiar! 🔥 Ready থাকলে আমি Blade files one by one paste করে দিই — just say "Start Blade" 😎📄
+
+okey start
+তুমিই বলেছো, কাওসার ভাই — আমি শুরু করে দিলাম! 😎 এই Step-by-Step guide-এ আমি Blade views বানাচ্ছি Salary Configuration module-এর জন্য, যেমন তুমি payrollReceipt এ করেছিলে:
+
+✨ Step 1: create.blade.php
+✅ নতুন salary add করার form যেখানে payroll items dropdown থেকে select করতে পারো, এবং amount manually দিতে পারো।
+
+blade
 @extends('layouts.master')
 
 @section('page')
 <div class="container py-4">
-    <!-- Header -->
     <div class="card bg-primary text-white mb-4">
         <div class="card-body d-flex justify-content-between align-items-center">
-            <h3 class="m-0">Create Payroll Receipt</h3>
-            <a href="{{ route('payroll_receipts.index') }}" class="btn btn-light btn-sm">
+            <h3 class="m-0">Create Salary Configuration</h3>
+            <a href="{{ route('salaries.index') }}" class="btn btn-light btn-sm">
                 <i class="fa fa-arrow-left"></i> Back to List
             </a>
         </div>
     </div>
 
-    <!-- Form -->
-    <div class="card shadow-sm">
-        <form action="{{ route('payroll_receipts.store') }}" method="POST">
-            @csrf
+    <form method="POST" action="{{ route('salaries.store') }}">
+        @csrf
+
+        <div class="card shadow-sm">
             <div class="card-body row g-3">
                 <!-- Employee -->
                 <div class="col-md-6">
                     <label for="employee_id" class="form-label">Employee</label>
-                    <select name="employee_id" id="employee_id" class="form-select" required>
+                    <select name="employee_id" class="form-control" required>
                         <option value="">Select Employee</option>
-                        @foreach ($employees as $employee)
-                            <option value="{{ $employee->id }}">
-                                {{ $employee->first_name }} {{ $employee->last_name }}
-                            </option>
+                        @foreach ($employees as $emp)
+                            <option value="{{ $emp->id }}">{{ $emp->first_name }} {{ $emp->last_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -33,8 +215,7 @@
                 <!-- Status -->
                 <div class="col-md-6">
                     <label for="status" class="form-label">Status</label>
-                    <select name="status" id="status" class="form-select" required>
-                        <option value="">Select Status</option>
+                    <select name="status" class="form-control" required>
                         <option value="paid">Paid</option>
                         <option value="unpaid">Unpaid</option>
                         <option value="pending">Pending</option>
@@ -44,16 +225,16 @@
                 <!-- Remarks -->
                 <div class="col-md-12">
                     <label for="remarks" class="form-label">Remarks</label>
-                    <input type="text" name="remarks" id="remarks" class="form-control" placeholder="Optional">
+                    <input type="text" name="remarks" class="form-control" placeholder="Optional">
                 </div>
 
-                <!-- Items Table -->
+                <!-- Salary Items -->
                 <div class="col-12">
-                    <label class="form-label">Payroll Items</label>
-                    <table class="table table-bordered" id="receipt-items-table">
+                    <label class="form-label">Salary Items</label>
+                    <table class="table table-bordered" id="salary-items-table">
                         <thead class="table-light">
                             <tr>
-                                <th>Payroll Item</th>
+                                <th>Item</th>
                                 <th>Amount</th>
                                 <th style="width: 50px"></th>
                             </tr>
@@ -61,7 +242,7 @@
                         <tbody>
                             <tr>
                                 <td>
-                                    <select name="items[0][payroll_item_id]" class="form-select" required>
+                                    <select name="items[0][payroll_item_id]" class="form-control" required>
                                         <option value="">Select Item</option>
                                         @foreach ($payroll_items as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -69,7 +250,7 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <input type="number" name="items[0][amount]" class="form-control item-amount" required step="0.01">
+                                    <input type="number" name="items[0][amount]" class="form-control" required step="0.01">
                                 </td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
@@ -77,46 +258,31 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button type="button" id="add-item" class="btn btn-sm btn-primary mt-2">
+                    <button id="add-item" type="button" class="btn btn-sm btn-primary mt-2">
                         <i class="fa fa-plus"></i> Add Item
                     </button>
-
-                    <div class="mt-3 text-end">
-                        <strong>Total Amount: </strong><span id="total-amount">0.00</span>
-                    </div>
                 </div>
             </div>
 
             <div class="card-footer text-end">
                 <button type="submit" class="btn btn-success">
-                    <i class="fa fa-save"></i> Save Receipt
+                    <i class="fa fa-save"></i> Save Salary
                 </button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
-@endsection
 
-@section('scripts')
 <script>
-    let rowIdx = 1;
-
-    function updateTotal() {
-        let total = 0;
-        document.querySelectorAll('.item-amount').forEach(input => {
-            const value = parseFloat(input.value);
-            if (!isNaN(value)) total += value;
-        });
-        document.getElementById('total-amount').textContent = total.toFixed(2);
-    }
+    let rowIndex = 1;
 
     document.getElementById('add-item').addEventListener('click', () => {
-        const table = document.querySelector('#receipt-items-table tbody');
+        const tableBody = document.querySelector('#salary-items-table tbody');
         const newRow = document.createElement('tr');
 
         newRow.innerHTML = `
             <td>
-                <select name="items[${rowIdx}][payroll_item_id]" class="form-select" required>
+                <select name="items[${rowIndex}][payroll_item_id]" class="form-control" required>
                     <option value="">Select Item</option>
                     @foreach ($payroll_items as $item)
                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -124,30 +290,370 @@
                 </select>
             </td>
             <td>
-                <input type="number" name="items[${rowIdx}][amount]" class="form-control item-amount" required step="0.01">
+                <input type="number" name="items[${rowIndex}][amount]" class="form-control" required step="0.01">
             </td>
             <td class="text-center">
                 <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
             </td>
         `;
 
-        table.appendChild(newRow);
-        rowIdx++;
+        tableBody.appendChild(newRow);
+        rowIndex++;
     });
 
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-item')) {
-            e.target.closest('tr').remove();
-            updateTotal();
+            const row = e.target.closest('tr');
+            row.remove();
         }
     });
-
-    document.addEventListener('input', function (e) {
-        if (e.target.classList.contains('item-amount')) {
-            updateTotal();
-        }
-    });
-
-    document.addEventListener('DOMContentLoaded', updateTotal);
 </script>
 @endsection
+🪄 Ready for Next Steps?
+আমি এখন তোমার জন্য:
+
+edit.blade.php – update form
+
+index.blade.php – salary list
+
+show.blade.php – salary details view
+
+SalaryApiController.php – API version
+
+সবগুলো sequentially তৈরি করবো 🧩 তুমি বলো 👉 “Next: Edit” — আমি পরের অংশ নিয়ে হাজির 😎📦
+
+Today
+ok do it
+🔥 চল শুরু করি edit.blade.php, কাওসার ভাই — যেখানে তুমি আগে যেভাবে payrollReceipt edit করেছিলে, সেভাবেই আমরা salary configuration edit form বানাবো!
+
+এই Blade ফাইলে পুরানো salary data প্রি-ফিল থাকবে, আর item গুলো dropdown থেকে select করে amount change করতে পারবে ✅
+
+✨ Step 2: edit.blade.php
+blade
+@extends('layouts.master')
+
+@section('page')
+<div class="container py-4">
+    <div class="card bg-warning text-white mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h3 class="m-0">Edit Salary Configuration</h3>
+            <a href="{{ route('salaries.index') }}" class="btn btn-light btn-sm">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ route('salaries.update', $salary->id) }}">
+        @csrf
+        @method('PUT')
+
+        <div class="card shadow-sm">
+            <div class="card-body row g-3">
+                <!-- Employee -->
+                <div class="col-md-6">
+                    <label for="employee_id" class="form-label">Employee</label>
+                    <select name="employee_id" class="form-control" required>
+                        @foreach ($employees as $emp)
+                            <option value="{{ $emp->id }}"
+                                @if($salary->employee_id == $emp->id) selected @endif>
+                                {{ $emp->first_name }} {{ $emp->last_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-6">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" class="form-control" required>
+                        <option value="paid" @selected($salary->status == 'paid')>Paid</option>
+                        <option value="unpaid" @selected($salary->status == 'unpaid')>Unpaid</option>
+                        <option value="pending" @selected($salary->status == 'pending')>Pending</option>
+                    </select>
+                </div>
+
+                <!-- Remarks -->
+                <div class="col-md-12">
+                    <label for="remarks" class="form-label">Remarks</label>
+                    <input type="text" name="remarks" class="form-control" value="{{ $salary->remarks }}">
+                </div>
+
+                <!-- Salary Items -->
+                <div class="col-12">
+                    <label class="form-label">Salary Items</label>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Item</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($salary->details as $index => $detail)
+                                <tr>
+                                    <td>
+                                        <select name="items[{{ $index }}][payroll_item_id]" class="form-control" required>
+                                            @foreach ($payroll_items as $item)
+                                                <option value="{{ $item->id }}"
+                                                    @if($detail->payroll_item_id == $item->id) selected @endif>
+                                                    {{ $item->name }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[{{ $index }}][amount]" class="form-control"
+                                            value="{{ $detail->amount }}" step="0.01" required>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-save"></i> Update Salary
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+@endsection
+👀 Ready for next step? তুমি চাইলে আমি index.blade.php (সালারির তালিকা), show.blade.php (একক তথ্য), এবং তারপর SalaryApiController.php লিখে দিই!
+
+Just say: Next: Index 😎📦 Laravel salary module আরেক ধাপ এগিয়ে যাবে 💼🚀
+
+next
+তাহলে চল কাওসার ভাই, এবার বানাই 👉 index.blade.php — যেখানে তোমার সব salary configuration list হয়ে থাকবে ✅ এই Blade ফাইলে তোমার আগের payrollReceipt style বজায় রেখে nice UI, employee info, total amount, status, ও action button যুক্ত করা হলো:
+
+✨ Step 3: index.blade.php — Salary List
+blade
+@extends('layouts.master')
+
+@section('page')
+<div class="container py-3">
+    <!-- Header -->
+    <div class="card bg-info text-white mb-3">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h3 class="m-0">Salary Configuration List</h3>
+            <a href="{{ route('salaries.create') }}" class="btn btn-light btn-sm">
+                <i class="fa fa-plus"></i> Add New Salary
+            </a>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <!-- Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Employee</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Remarks</th>
+                        <th>Created</th>
+                        <th style="width: 160px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($salaries as $salary)
+                        <tr>
+                            <td>{{ $salary->employee->first_name }} {{ $salary->employee->last_name }}</td>
+                            <td><span class="badge bg-secondary text-capitalize">{{ $salary->status }}</span></td>
+                            <td>{{ number_format($salary->salary_total, 2) }}</td>
+                            <td>{{ $salary->remarks }}</td>
+                            <td>{{ \Carbon\Carbon::parse($salary->created_at)->format('d M, Y') }}</td>
+                            <td>
+                                <a href="{{ route('salaries.show', $salary->id) }}" class="btn btn-sm btn-info">
+                                    <i class="fa fa-eye"></i>
+                                </a>
+                                <a href="{{ route('salaries.edit', $salary->id) }}" class="btn btn-sm btn-warning">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ route('salaries.destroy', $salary->id) }}" class="d-inline">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this salary?')">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="text-center text-muted py-4">No salary configurations found</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endsection
+🧠 এই Blade file-এ clean layout, action buttons, and employee relation perfectভাবে use করা হয়েছে — তোমার Laravel HR app এখন একদম polished!
+
+তুমি বললেই আমি 👉 next step: show.blade.php (individual salary view) তৈরি করে দিবো 💥 Just say: Next: Show 😎📄 Laravel যেন বলে — "এই payroll system একদম industry-grade!" 🚀
+
+next
+🚀 চল এবার শেষ করি show.blade.php, কাওসার ভাই — যেখানে প্রতিটি salary configuration এর বিস্তারিত দেখা যাবে 👀
+
+এই পেজে তুমি employee এর নাম, status, remarks, এবং প্রতিটি payroll item-এর amount দেখতে পারবে সুন্দরভাবে, ঠিক তোমার payrollReceipt-এর মতো ✅
+
+✨ Step 4: show.blade.php — Salary Details View
+blade
+@extends('layouts.master')
+
+@section('page')
+<div class="container py-4">
+    <div class="card bg-dark text-white mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h3 class="m-0">Salary Details</h3>
+            <a href="{{ route('salaries.index') }}" class="btn btn-light btn-sm">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Salary Summary -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <h5 class="mb-2">{{ $salary->employee->first_name }} {{ $salary->employee->last_name }}</h5>
+            <p><strong>Status:</strong> <span class="badge bg-secondary text-capitalize">{{ $salary->status }}</span></p>
+            <p><strong>Total Amount:</strong> {{ number_format($salary->salary_total, 2) }}</p>
+            <p><strong>Remarks:</strong> {{ $salary->remarks }}</p>
+            <p><strong>Created At:</strong> {{ \Carbon\Carbon::parse($salary->created_at)->format('d M, Y h:i A') }}</p>
+        </div>
+    </div>
+
+    <!-- Item Breakdown -->
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <strong>Salary Breakdown</strong>
+        </div>
+        <div class="card-body p-0">
+            <table class="table mb-0 table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Payroll Item</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($salary->details as $detail)
+                        <tr>
+                            <td>{{ $detail->payroll_item->name ?? 'Unknown Item' }}</td>
+                            <td>{{ number_format($detail->amount, 2) }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endsection
+👨‍💻 Blade View একদম polished — তোমার layout, style এবং database relation ব্যবহার করে perfect presentation তৈরি হয়েছে ✅ তুমি চাইলে এখানে export PDF, print view, অথবা download slip feature যোগ করতে পারো।
+
+Ready হলে আমি 👉 Step 5: SalaryApiController.php দিয়ে দিই — API-র মাধ্যমে same CRUD operations json format-এ চালাতে পারবে 😎
+
+তুমি শুধু বলো 👉 Next: API Controller 💥 Laravel salary system আর এক ধাপ প্রো-লেভেল! 📊📦
+
+write down SalaryApiController.php
+Absolutely, কাওসার ভাই! 🎯 এইবার আমি তোমার Laravel API structure অনুযায়ী SalaryApiController.php তৈরি করে দিচ্ছি — যেটা ঠিক তোমার PayrollReceiptApiController এর মতোই হবে ✅
+
+🔧 Step 5: SalaryApiController.php
+php
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Salary;
+use App\Models\SalaryDetail;
+use Illuminate\Http\Request;
+
+class SalaryApiController extends Controller
+{
+    public function index()
+    {
+        $salaries = Salary::with(['employee', 'details.payroll_item'])->latest()->get();
+        return response()->json($salaries);
+    }
+
+    public function store(Request $request)
+    {
+        $salary = Salary::create([
+            'employee_id' => $request->employee_id,
+            'salary_total' => array_sum(array_column($request->items, 'amount')),
+            'status' => $request->status,
+            'remarks' => $request->remarks,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        foreach ($request->items as $item) {
+            SalaryDetail::create([
+                'salary_id' => $salary->id,
+                'payroll_item_id' => $item['payroll_item_id'],
+                'amount' => $item['amount']
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Salary created successfully',
+            'data' => $salary
+        ], 201);
+    }
+
+    public function show($id)
+    {
+        $salary = Salary::with(['employee', 'details.payroll_item'])->findOrFail($id);
+        return response()->json($salary);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $salary = Salary::findOrFail($id);
+        $salary->update([
+            'employee_id' => $request->employee_id,
+            'salary_total' => array_sum(array_column($request->items, 'amount')),
+            'status' => $request->status,
+            'remarks' => $request->remarks,
+            'updated_at' => now()
+        ]);
+
+        $salary->details()->delete();
+        foreach ($request->items as $item) {
+            SalaryDetail::create([
+                'salary_id' => $salary->id,
+                'payroll_item_id' => $item['payroll_item_id'],
+                'amount' => $item['amount']
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Salary updated successfully',
+            'data' => $salary
+        ]);
+    }
+
+    public function destroy($id)
+    {
+        $salary = Salary::findOrFail($id);
+        $salary->details()->delete();
+        $salary->delete();
+
+        return response()->json([
+            'message' => 'Salary deleted successfully'
+        ]);
+    }
+}
+🔧 Bonus: API Route
+php
+use App\Http\Controllers\Api\SalaryApiController;
+
+Route::apiResource('salaries', SalaryApiController::class);

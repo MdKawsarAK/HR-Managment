@@ -30,3 +30,4 @@ Route::apiResources([
 // ]);
 Route::apiResource('districts', districtsController::class);
 Route::apiResource('payroll_receipt', PayrollReceipt::class);
+Route::apiResource('payroll_invoices', PayrollReceipt::class);

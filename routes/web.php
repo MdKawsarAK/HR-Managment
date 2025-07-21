@@ -59,3 +59,4 @@ Route::resource('payroll_receipts', PayrollReceiptController::class);
 
 Route::resource('payroll_items', App\Http\Controllers\PayrollItemController::class);
 Route::resource('employees', App\Http\Controllers\EmployeeController::class);
+Route::resource('salaries', App\Http\Controllers\SalaryController::class);

@@ -144,8 +144,8 @@ note:
 php artisan make:command GenerateCrud --command=make:crud
 php artisan generate:crud employees
 php artisan generate:crud employees --force# HR
-php artisan generate:crud districts  
-php artisan make:controller PayrollInvoicesController --resource
+php artisan generate:crud salaries 
+php artisan make:controller Payroll_invoicesController --api
 
 
 
