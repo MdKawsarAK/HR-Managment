@@ -186,6 +186,29 @@
         </li>
         <li class="nav-item">
           <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+              Salary Configuration
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a class="nav-link" href="{{url('salaries/create')}}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Create Salary</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url('salaries')}}">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Salary Manager</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
             <i class="nav-icon fas fa-edit"></i>
             <p>
               PMS
@@ -265,9 +288,7 @@
                 <p>Payroll reports</p>
               </a>
             </li>
-          </ul>
-        </li>
-        <li class="nav-item">
+                    <li class="nav-item">
           <a href="#" class="nav-link">
             <i class="nav-icon fas fa-table"></i>
             <p>
@@ -308,6 +329,9 @@
             </li>
           </ul>
         </li>
+          </ul>
+        </li>
+
       </ul>
     </nav>
     <!-- /.sidebar-menu -->

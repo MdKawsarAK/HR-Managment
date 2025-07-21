@@ -1,17 +1,82 @@
 @extends('layouts.master')
+
 @section('page')
-    <!-- Page Header -->
-    <div class="card bg-primary mb-3 p-4">
-        <div class="row">
-            <div class="col-12 d-flex justify-content-between align-item-center ">
-                <h3 class=" card-title text-white d-flex align-items-center  m-0">Create LeaveApplication</h3>
-                <a href="{{ route('leave_applications.index') }}" class="btn btn-light btn-sm" title="Back">
-                    <i class="fa fa-arrow-left mr-1"></i> Back
-                </a>
+<div class="container py-4">
+    <div class="card bg-primary text-white mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h3 class="m-0">Apply for Leave</h3>
+            <a href="{{ route('leaves.index') }}" class="btn btn-light btn-sm">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ route('leaves.store') }}">
+        @csrf
+        <div class="card shadow-sm">
+            <div class="card-body row g-3">
+
+                <!-- Employee -->
+                <div class="col-md-6">
+                    <label class="form-label">Employee</label>
+                    <select name="employee_id" class="form-control" required>
+                        @foreach ($employees as $emp)
+                            <option value="{{ $emp->id }}">{{ $emp->first_name }} {{ $emp->last_name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Leave Category -->
+                <div class="col-md-6">
+                    <label class="form-label">Leave Category</label>
+                    <select name="leave_category_id" class="form-control" required>
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- From Date -->
+                <div class="col-md-6">
+                    <label class="form-label">From Date</label>
+                    <input type="date" name="from_date" class="form-control" required>
+                </div>
+
+                <!-- To Date -->
+                <div class="col-md-6">
+                    <label class="form-label">To Date</label>
+                    <input type="date" name="to_date" class="form-control" required>
+                </div>
+
+                <!-- Reason -->
+                <div class="col-md-12">
+                    <label class="form-label">Reason</label>
+                    <textarea name="reason" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <!-- Days -->
+                <div class="col-md-6">
+                    <label class="form-label">Total Days</label>
+                    <input type="number" name="days" class="form-control" step="1" required>
+                </div>
+
+                <!-- Status -->
+                <div class="col-md-6">
+                    <label class="form-label">Status</label>
+                    <select name="status_id" class="form-control" required>
+                        @foreach ($statuses as $stat)
+                            <option value="{{ $stat->id }}">{{ $stat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="fa fa-paper-plane"></i> Submit Application
+                </button>
             </div>
         </div>
-    </div>    
-    <form action="{{ route('leave_applications.store') }}" method="POST" enctype="multipart/form-data">
-        @include('pages.leave_applications._form', ['mode' => 'create', 'leaveApplication' => new App\Models\LeaveApplication])
     </form>
+</div>
 @endsection

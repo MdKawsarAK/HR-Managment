@@ -13,7 +13,7 @@
 </div>
 <div class="mb-2">
     <label>Category id</label>
-    <select name="category_id" class="form-select">
+    <select name="category_id" class="form-control">
         <option value="">Select Category id</option>
         @foreach ($categories as $option)
             <option value="{{ $option->id }}" {{ old('category_id', $employee->category_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
@@ -65,7 +65,7 @@
 </div>
 <div class="mb-2">
     <label>Blood id</label>
-    <select name="blood_id" class="form-select">
+    <select name="blood_id" class="form-control">
         <option value="">Select Blood id</option>
         @foreach ($bloods as $option)
             <option value="{{ $option->id }}" {{ old('blood_id', $employee->blood_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>

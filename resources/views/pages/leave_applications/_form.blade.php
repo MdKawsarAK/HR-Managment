@@ -4,26 +4,17 @@
 @endif
 
 <div class="mb-2">
-    <label>Person id</label>
-    <select name="person_id" class="form-select">
-        <option value="">Select Person id</option>
-        @foreach ($people as $option)
-            <option value="{{ $option->id }}" {{ old('person_id', $leaveApplication->person_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
+    <label>Employee id</label>
+    <select name="employee_id" class="form-control">
+        <option value="">Select Employee id</option>
+        @foreach ($employees as $option)
+            <option value="{{ $option->id }}" {{ old('employee_id', $leaveApplication->employee_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
         @endforeach
     </select>
 </div>
 <div class="mb-2">
-    <label>Reason id</label>
-    <select name="reason_id" class="form-select">
-        <option value="">Select Reason id</option>
-        @foreach ($reasons as $option)
-            <option value="{{ $option->id }}" {{ old('reason_id', $leaveApplication->reason_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
-        @endforeach
-    </select>
-</div>
-<div class="mb-2">
-    <label>Remark</label>
-    <input type="text" name="remark" value="{{ old('remark', $leaveApplication->remark ?? '') }}" class="form-control">
+    <label>Reason</label>
+    <input type="text" name="reason" value="{{ old('reason', $leaveApplication->reason ?? '') }}" class="form-control">
 </div>
 <div class="mb-2">
     <label>From date</label>
@@ -35,7 +26,7 @@
 </div>
 <div class="mb-2">
     <label>Status id</label>
-    <select name="status_id" class="form-select">
+    <select name="status_id" class="form-control">
         <option value="">Select Status id</option>
         @foreach ($statuses as $option)
             <option value="{{ $option->id }}" {{ old('status_id', $leaveApplication->status_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
@@ -43,11 +34,11 @@
     </select>
 </div>
 <div class="mb-2">
-    <label>Category id</label>
-    <select name="category_id" class="form-select">
-        <option value="">Select Category id</option>
-        @foreach ($categories as $option)
-            <option value="{{ $option->id }}" {{ old('category_id', $leaveApplication->category_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
+    <label>Leave category id</label>
+    <select name="leave_category_id" class="form-control">
+        <option value="">Select Leave category id</option>
+        @foreach ($leaveCategories as $option)
+            <option value="{{ $option->id }}" {{ old('leave_category_id', $leaveApplication->leave_category_id ?? '') == $option->id ? 'selected' : '' }}>{{ $option->name ?? $option->id }}</option>
         @endforeach
     </select>
 </div>

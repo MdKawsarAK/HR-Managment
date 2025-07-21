@@ -7,6 +7,8 @@ use App\Http\Controllers\Inventory\ProductController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PayrollInvoiceController;
 use App\Http\Controllers\PayrollReceiptController;
+use App\Http\Controllers\LeaveApplicationController;
+use App\Http\Controllers\LeaveTransactionController;
 
 Route::get('/', function () {
     return view('pages.dashboard.home');
@@ -52,6 +54,7 @@ Route::resource('attendancemethods', App\Http\Controllers\AttendancemethodContro
 // Route::resource('/invoices', App\Http\Controllers\PayrollInvoiceController::class);
 Route::resource('payroll-invoices', PayrollInvoiceController::class);
 Route::resource('payroll_receipts', PayrollReceiptController::class);
+Route::get('leaves/report', [LeaveReportController::class, 'index'])->name('leaves.report');
 
 
 
@@ -60,3 +63,11 @@ Route::resource('payroll_receipts', PayrollReceiptController::class);
 Route::resource('payroll_items', App\Http\Controllers\PayrollItemController::class);
 Route::resource('employees', App\Http\Controllers\EmployeeController::class);
 Route::resource('salaries', App\Http\Controllers\SalaryController::class);
+Route::resource('leave_configs', App\Http\Controllers\LeaveConfigController::class);
+Route::resource('leaves', App\Http\Controllers\LeaveApplicationController::class);
+// Route::resource('leave_configs', LeaveConfigController::class);
+// Route::resource('leaves', LeaveApplicationController::class);
+// Route::resource('leave-transactions', LeaveTransactionController::class);
+
+Route::resource('leave_categories', App\Http\Controllers\LeaveCategoryController::class);
+Route::resource('leave_statuses', App\Http\Controllers\LeaveStatusController::class);

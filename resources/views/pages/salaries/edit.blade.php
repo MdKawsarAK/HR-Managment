@@ -70,15 +70,22 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" name="items[{{ $index }}][amount]" class="form-control"
+                                        <input type="number" name="items[{{ $index }}][amount]" class="form-control amount-input"
                                             value="{{ $detail->amount }}" step="0.01" required>
                                     </td>
+
+
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    <!-- Total Preview -->
+                    <div class="mt-3 text-end">
+                    <h5>Total: <span id="total-amount" class="fw-bold">0.00</span></h5>
+                    </div>
                 </div>
             </div>
+
 
             <div class="card-footer text-end">
                 <button type="submit" class="btn btn-primary">
@@ -88,4 +95,27 @@
         </div>
     </form>
 </div>
+<script>
+
+    function calculateTotal() {
+        let total = 0;
+       document.querySelectorAll('.amount-input').forEach(input => {
+            const value = parseFloat(input.value);
+            if (!isNaN(value)) total += value;
+        });
+        document.getElementById('total-amount').textContent = total.toFixed(2);
+    }
+
+    // Trigger when page loads
+    calculateTotal();
+
+    // Recalculate on input change
+    document.addEventListener('input', function (e) {
+        if (e.target.name && e.target.name.includes('[amount]')) {
+            calculateTotal();
+        }
+    });
+</script>
 @endsection
+
+

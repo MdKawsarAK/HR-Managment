@@ -2,86 +2,106 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LeaveApplication;
 use Illuminate\Http\Request;
-use App\Models\Person;
-use App\Models\Reason;
-use App\Models\Status;
-use App\Models\Category;
-
+use App\Models\LeaveApplication;
+use App\Models\Employee;
+use App\Models\LeaveCategory;
+use App\Models\LeaveStatus;
 
 class LeaveApplicationController extends Controller
 {
+    // Show all leave_applications
     public function index()
     {
-        $leaveApplications = LeaveApplication::latest()->paginate(10);
-        return view('pages.leaveApplications.index', compact('leaveApplications'));
+        $leave_applications = LeaveApplication::with(['employee', 'category', 'status'])->orderBy('created_at', 'desc')->get();
+        return view('pages.leave_applications.index', compact('leave_applications'));
     }
 
+    // Show apply form
     public function create()
     {
-        $people = \App\Models\Person::all();
-        $reasons = \App\Models\Reason::all();
-        $statuses = \App\Models\Status::all();
-        $categories = \App\Models\Category::all();
-
-        return view('pages.leaveApplications.create', [
-            'mode' => 'create',
-            'leaveApplication' => new LeaveApplication(),
-            'people' => $people,
-            'reasons' => $reasons,
-            'statuses' => $statuses,
-            'categories' => $categories,
-
-        ]);
+        $employees = Employee::all();
+        $categories = LeaveCategory::all();
+        $statuses = LeaveStatus::all();
+        return view('pages.leave_applications.create', compact('employees', 'categories', 'statuses'));
     }
 
+    // Store leave application
     public function store(Request $request)
     {
-        $data = $request->all();
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('uploads', 'public');
-        }
-        LeaveApplication::create($data);
-        return redirect()->route('leaveApplications.index')->with('success', 'Successfully created!');
-    }
-
-    public function show(LeaveApplication $leaveApplication)
-    {
-        return view('pages.leaveApplications.view', compact('leaveApplication'));
-    }
-
-    public function edit(LeaveApplication $leaveApplication)
-    {
-        $people = \App\Models\Person::all();
-        $reasons = \App\Models\Reason::all();
-        $statuses = \App\Models\Status::all();
-        $categories = \App\Models\Category::all();
-
-        return view('pages.leaveApplications.edit', [
-            'mode' => 'edit',
-            'leaveApplication' => $leaveApplication,
-            'people' => $people,
-            'reasons' => $reasons,
-            'statuses' => $statuses,
-            'categories' => $categories,
-
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'leave_category_id' => 'required|exists:leave_categories,id',
+            'reason' => 'required|string|max:255',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+            'days' => 'required|integer|min:1',
+            'status_id' => 'required|exists:leave_statuses,id'
         ]);
+
+        LeaveApplication::create([
+            'employee_id' => $request->employee_id,
+            'leave_category_id' => $request->leave_category_id,
+            'reason' => $request->reason,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
+            'days' => $request->days,
+            'status_id' => $request->status_id,
+            'created_at' => now()
+        ]);
+
+        return redirect()->route('leaves.index')->with('success', 'Leave application submitted!');
     }
 
-    public function update(Request $request, LeaveApplication $leaveApplication)
+    // Show application details
+    public function show($id)
     {
-        $data = $request->all();
-        if ($request->hasFile('photo')) {
-            $data['photo'] = $request->file('photo')->store('uploads', 'public');
-        }
-        $leaveApplication->update($data);
-        return redirect()->route('leaveApplications.index')->with('success', 'Successfully updated!');
+        $application = LeaveApplication::with(['employee', 'category', 'status'])->findOrFail($id);
+        return view('pages.leave_applications.view', compact('application'));
     }
 
-    public function destroy(LeaveApplication $leaveApplication)
+    // Edit application (for admin approval or correction)
+    public function edit($id)
     {
-        $leaveApplication->delete();
-        return redirect()->route('leaveApplications.index')->with('success', 'Successfully deleted!');
+        $application = LeaveApplication::findOrFail($id);
+        $employees = Employee::all();
+        $categories = LeaveCategory::all();
+        $statuses = LeaveStatus::all();
+        return view('pages.leave_applications.edit', compact('application', 'employees', 'categories', 'statuses'));
+    }
+
+    // Update application
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'leave_category_id' => 'required|exists:leave_categories,id',
+            'reason' => 'required|string|max:255',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+            'days' => 'required|integer|min:1',
+            'status_id' => 'required|exists:leave_statuses,id'
+        ]);
+
+        $application = LeaveApplication::findOrFail($id);
+        $application->update([
+            'employee_id' => $request->employee_id,
+            'leave_category_id' => $request->leave_category_id,
+            'reason' => $request->reason,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
+            'days' => $request->days,
+            'status_id' => $request->status_id
+        ]);
+
+        return redirect()->route('leaves.index')->with('success', 'Leave application updated!');
+    }
+
+    // Delete application
+    public function destroy($id)
+    {
+        $application = LeaveApplication::findOrFail($id);
+        $application->delete();
+        return redirect()->route('leaves.index')->with('success', 'Leave application deleted!');
     }
 }

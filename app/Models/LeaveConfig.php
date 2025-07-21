@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class LeaveApplication extends Model
+class LeaveConfig extends Model
 {
-    protected $table = 'leave_applications';
+    protected $table = 'leave_configs';
     public $timestamps = false;
 
-    protected $fillable = ['employee_id', 'reason', 'from_date', 'to_date', 'status_id', 'leave_category_id', 'days', 'created_at'];
+    protected $fillable = ['employee_id', 'leave_category_id', 'days'];
 
     public function employee()
     {
@@ -19,10 +19,5 @@ class LeaveApplication extends Model
     public function category()
     {
         return $this->belongsTo(LeaveCategory::class, 'leave_category_id');
-    }
-
-    public function status()
-    {
-        return $this->belongsTo(Status::class, 'status_id');
     }
 }

@@ -1,45 +1,47 @@
 @extends('layouts.master')
-@section('page')
-    <!-- Page Header -->
-    <div class="card bg-primary mb-3 p-4">
-        <div class="row">
-            <div class="col-12 d-flex justify-content-between align-item-center ">
-                <h3 class=" card-title text-white d-flex align-items-center  m-0">Create LeaveApplication</h3>
-                <a href="{{ route('leave_applications.index') }}" class="btn btn-light btn-sm" title="Back">
-                    <i class="fa fa-arrow-left mr-1"></i> Back
-                </a>
-            </div>
-        </div>
-    </div> 
-<div class="mb-2">
-    <strong>Id:</strong> {{ $leaveApplication->id }}
-</div>
-<div class="mb-2">
-    <strong>Created at:</strong> {{ $leaveApplication->created_at }}
-</div>
-<div class="mb-2">
-    <strong>Person id:</strong> {{ $leaveApplication->person->name ?? $leaveApplication->person_id }}
-</div>
-<div class="mb-2">
-    <strong>Reason id:</strong> {{ $leaveApplication->reason->name ?? $leaveApplication->reason_id }}
-</div>
-<div class="mb-2">
-    <strong>Remark:</strong> {{ $leaveApplication->remark }}
-</div>
-<div class="mb-2">
-    <strong>From date:</strong> {{ $leaveApplication->from_date }}
-</div>
-<div class="mb-2">
-    <strong>To date:</strong> {{ $leaveApplication->to_date }}
-</div>
-<div class="mb-2">
-    <strong>Status id:</strong> {{ $leaveApplication->status->name ?? $leaveApplication->status_id }}
-</div>
-<div class="mb-2">
-    <strong>Category id:</strong> {{ $leaveApplication->category->name ?? $leaveApplication->category_id }}
-</div>
-<div class="mb-2">
-    <strong>Days:</strong> {{ $leaveApplication->days }}
-</div>
 
+@section('page')
+<div class="container py-4">
+    <div class="card bg-info text-white mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <h3 class="m-0">Leave Application Details</h3>
+            <a href="{{ route('leaves.index') }}" class="btn btn-light btn-sm">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-md-4">Employee</dt>
+                <dd class="col-md-8">{{ $application->employee->first_name }} {{ $application->employee->last_name }}</dd>
+
+                <dt class="col-md-4">Category</dt>
+                <dd class="col-md-8">{{ $application->category->name }}</dd>
+
+                <dt class="col-md-4">From</dt>
+                <dd class="col-md-8">{{ \Carbon\Carbon::parse($application->from_date)->format('d M Y') }}</dd>
+
+
+                <dt class="col-md-4">To</dt>
+                <dd class="col-md-8">{{ \Carbon\Carbon::parse($application->to_date)->format('d M Y') }}</dd>
+
+
+                <dt class="col-md-4">Days</dt>
+                <dd class="col-md-8">{{ $application->days }}</dd>
+
+                <dt class="col-md-4">Reason</dt>
+                <dd class="col-md-8">{{ $application->reason }}</dd>
+
+                <dt class="col-md-4">Status</dt>
+                <dd class="col-md-8">
+                    <span class="badge bg-{{ $application->status->name == 'Approved' ? 'success' : ($application->status->name == 'Rejected' ? 'danger' : 'warning') }}">
+                        {{ $application->status->name }}
+                    </span>
+                </dd>
+            </dl>
+        </div>
+    </div>
+</div>
 @endsection
