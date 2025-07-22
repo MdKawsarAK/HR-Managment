@@ -35,7 +35,7 @@ class LeaveConfigController extends Controller
 
         LeaveConfig::create([
             'employee_id' => $request->employee_id,
-            'leave_category_id' => $request->leave_category_id,
+            'category_id' => $request->leave_category_id,
             'days' => $request->days
         ]);
 

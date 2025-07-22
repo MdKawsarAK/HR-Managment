@@ -130,15 +130,15 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{ url('leave_configs') }}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Apply for leave</p>
+                <p>Leave Config</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link">
+              <a href="{{url('leave_configs/create')}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
-                <p>Leave approval by admin</p>
+                <p>Crate Leave Configs</p>
               </a>
             </li>
             <li class="nav-item">
@@ -203,6 +203,41 @@
               <a class="nav-link" href="{{url('salaries')}}">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Salary Manager</p>
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-pie"></i>
+            <p>
+              Accounts
+              <i class="fas fa-angle-left right"></i>
+            </p>
+          </a>
+          <ul class="nav nav-treeview">
+            <li class="nav-item">
+              <a href="{{url('payroll-invoices/create')}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Create Employee Bills</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url('payroll-invoices')}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Employee Bills</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url('payroll_receipts/create')}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Create Receipts</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{{url('payroll_receipts')}}" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Employee Receipts</p>
               </a>
             </li>
           </ul>
@@ -288,47 +323,47 @@
                 <p>Payroll reports</p>
               </a>
             </li>
-                    <li class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-table"></i>
-            <p>
-              Configuration
-              <i class="fas fa-angle-left right"></i>
-            </p>
-          </a>
-          <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="pages/tables/simple.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Company details</p>
+              <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-table"></i>
+                <p>
+                  Configuration
+                  <i class="fas fa-angle-left right"></i>
+                </p>
               </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="pages/tables/simple.html" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Company details</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="pages/tables/data.html" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Working hours</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="pages/tables/jsgrid.html" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Attendance rules</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="pages/tables/jsgrid.html" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Leave policies</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="pages/tables/jsgrid.html" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Payroll configuration</p>
+                  </a>
+                </li>
+              </ul>
             </li>
-            <li class="nav-item">
-              <a href="pages/tables/data.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Working hours</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/tables/jsgrid.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Attendance rules</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/tables/jsgrid.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Leave policies</p>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="pages/tables/jsgrid.html" class="nav-link">
-                <i class="far fa-circle nav-icon"></i>
-                <p>Payroll configuration</p>
-              </a>
-            </li>
-          </ul>
-        </li>
           </ul>
         </li>
 

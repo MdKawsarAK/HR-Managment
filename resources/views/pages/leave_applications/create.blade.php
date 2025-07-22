@@ -19,9 +19,9 @@
                 <!-- Employee -->
                 <div class="col-md-6">
                     <label class="form-label">Employee</label>
-                    <select name="employee_id" class="form-control" required>
+                    <select id="employee-id" name="employee_id" class="form-control" required>
                         @foreach ($employees as $emp)
-                            <option value="{{ $emp->id }}">{{ $emp->first_name }} {{ $emp->last_name }}</option>
+                        <option value="{{ $emp->id }}">{{ $emp->first_name }} {{ $emp->last_name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -31,7 +31,7 @@
                     <label class="form-label">Leave Category</label>
                     <select name="leave_category_id" class="form-control" required>
                         @foreach ($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -57,7 +57,7 @@
                 <!-- Days -->
                 <div class="col-md-6">
                     <label class="form-label">Total Days</label>
-                    <input type="number" name="days" class="form-control" step="1" required>
+                    <input id="days" type="number" name="days" class="form-control" step="1" required>
                 </div>
 
                 <!-- Status -->
@@ -65,7 +65,7 @@
                     <label class="form-label">Status</label>
                     <select name="status_id" class="form-control" required>
                         @foreach ($statuses as $stat)
-                            <option value="{{ $stat->id }}">{{ $stat->name }}</option>
+                        <option value="{{ $stat->id }}">{{ $stat->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -78,5 +78,32 @@
             </div>
         </div>
     </form>
+
+
+    <script>
+        const employeeSelect = document.getElementById('employee-id');
+        const daysField = document.getElementById('days');
+        
+        employeeSelect.addEventListener("change", async () => {
+            const response = await fetch(
+                `http://127.0.0.1:8000/api/leave_count?id=${employeeSelect.value}`, {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+            const result = await response.json();
+            console.log(result);
+            if (result.found) {
+                daysField.value=result.days;
+                alert(`Employee Found! Leave count: ${result.days}`);
+            } else {
+                console.log("Employee not found");
+                alert('Employee Not found!')
+            }
+        });
+    </script>
 </div>
 @endsection

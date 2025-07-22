@@ -9,7 +9,7 @@ class LeaveConfig extends Model
     protected $table = 'leave_configs';
     public $timestamps = false;
 
-    protected $fillable = ['employee_id', 'leave_category_id', 'days'];
+    protected $fillable = ['employee_id', 'category_id', 'days'];
 
     public function employee()
     {
@@ -18,6 +18,6 @@ class LeaveConfig extends Model
 
     public function category()
     {
-        return $this->belongsTo(LeaveCategory::class, 'leave_category_id');
+        return $this->belongsTo(LeaveCategory::class, 'category_id');
     }
 }

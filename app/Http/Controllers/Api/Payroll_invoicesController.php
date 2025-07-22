@@ -5,16 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Payroll_invoice_detail;
+use App\Models\Salary;
 
 class Payroll_invoicesController extends Controller
 {
+
+    // get salary config
+    
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return PayrollInvoices::all();
-        response()->json($invoices);
+        // return PayrollInvoices::all();
+        // response()->json($invoices);
     }
 
     /**
@@ -22,24 +27,24 @@ class Payroll_invoicesController extends Controller
      */
     public function store(Request $request)
     {
-        $pr=new \App\Models\PayrollReceipt();
-        $pr->employee_id=$request->employee_id;
-        $pr->receipt_total=$request->receipt_total;
-        $pr->status=$request->status;
-        $pr->remarks=$request->remarks;
-        $pr->created_at=now();
-        $pr->save();
+        // $pr=new \App\Models\PayrollReceipt();
+        // $pr->employee_id=$request->employee_id;
+        // $pr->receipt_total=$request->receipt_total;
+        // $pr->status=$request->status;
+        // $pr->remarks=$request->remarks;
+        // $pr->created_at=now();
+        // $pr->save();
 
-        $items=$request->items;
-        foreach($items as $item){
-            $details=new Payroll_invoicesDetail();
-            $details->receipt_id=$pr->id;
-            $details->payroll_item_id=$item['payroll_item_id'];
-            $details->amount=$item['amount'];
-            $details->save();
-        }
+        // $items=$request->items;
+        // foreach($items as $item){
+        //     $details=new Payroll_invoicesDetail();
+        //     $details->receipt_id=$pr->id;
+        //     $details->payroll_item_id=$item['payroll_item_id'];
+        //     $details->amount=$item['amount'];
+        //     $details->save();
+        // }
 
-        return response()->json($pr,200);
+        // return response()->json($pr,200);
     }
 
     /**
