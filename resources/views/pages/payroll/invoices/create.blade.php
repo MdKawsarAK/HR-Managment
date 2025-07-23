@@ -8,7 +8,7 @@
         flex-direction: row;
         justify-content: space-between;
     }
-    }
+    
 </style>
 
 @extends('layouts.master')
@@ -19,7 +19,7 @@
     <div class="card bg-primary text-white mb-4 shadow-sm">
         <div class="card-body d-flex justify-content-between align-items-center">
             <h3 class="card-title m-0">Create Payroll Invoice</h3>
-            <a href="{{ route('payroll-invoices.index') }}" class="btn btn-light btn-sm">
+            <a href="{{ route('payroll_invoices.index') }}" class="btn btn-light btn-sm">
                 <i class="fa fa-arrow-left mr-1"></i> Back to List
             </a>
         </div>
@@ -79,9 +79,9 @@
                     </tbody>
                 </table>
                 <div class="table_p">
-                    <button id="add-item" class="btn text-start btn-sm btn-primary mt-2">
+                    <!-- <button id="add-item" class="btn text-start btn-sm btn-primary mt-2">
                         <i class="fa fa-plus"></i> Add Item
-                    </button>
+                    </button> -->
                     <!-- Total Amount Display -->
                     <div class="mt-3 text-end">
                         <strong>Total Amount:</strong> <span id="total-amount" class="fw-bold">0.00</span>
@@ -114,75 +114,77 @@
         document.getElementById('total-amount').textContent = total.toFixed(2);
     }
 
-    document.getElementById('add-item').addEventListener('click', function() {
-        const table = document.querySelector('#invoice-items-table tbody');
-        const newRow = document.createElement('tr');
+    // document.getElementById('add-item').addEventListener('click', function() {
+    //     const table = document.querySelector('#invoice-items-table tbody');
+    //     const newRow = document.createElement('tr');
 
-        newRow.innerHTML = `
-                    <td>
-                        <select name="items[${rowIdx}][item_id]" class="form-control" required>
-                        <option value="">Select Item</option>
-                        @foreach ($items as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                        @endforeach
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" name="items[${rowIdx}][amount]" class="form-control item-amount" step="0.01" required>
-                    </td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
-                    </td>
-                `;
+    //     newRow.innerHTML = `
+    //                 <td>
+    //                     <select name="items[${rowIdx}][item_id]" class="form-control" required>
+    //                     <option value="">Select Item</option>
+    //                     @foreach ($items as $item)
+    //                         <option value="{{ $item->id }}">{{ $item->name }}</option>
+    //                     @endforeach
+    //                     </select>
+    //                 </td>
+    //                 <td>
+    //                     <input type="number" name="items[${rowIdx}][amount]" class="form-control item-amount" step="0.01" required>
+    //                 </td>
+    //                 <td class="text-center">
+    //                     <button type="button" class="btn btn-sm btn-danger remove-item">&times;</button>
+    //                 </td>
+    //             `;
 
-        table.appendChild(newRow);
-        rowIdx++;
-        updateTotal();
-    });
+    //     table.appendChild(newRow);
+    //     rowIdx++;
+    //     updateTotal();
+    // });
 
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-item')) {
-            e.target.closest('tr').remove();
-            updateTotal();
-        }
-    });
+    // document.addEventListener('click', function(e) {
+    //     if (e.target.classList.contains('remove-item')) {
+    //         e.target.closest('tr').remove();
+    //         updateTotal();
+    //     }
+    // });
 
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('item-amount')) {
-            updateTotal();
-        }
-    });
+    // document.addEventListener('input', function(e) {
+    //     if (e.target.classList.contains('item-amount')) {
+    //         updateTotal();
+    //     }
+    // });
 
-    document.addEventListener('DOMContentLoaded', updateTotal);
+    // document.addEventListener('DOMContentLoaded', updateTotal);
 
     document.getElementById('save-btn').addEventListener('click', async function() {
         const employee_id = document.getElementById('employee_id').value;
         const invoice_total = document.getElementById('total-amount').textContent;
         const status = document.getElementById('status').value;
         const remarks = document.getElementById('remarks').value;
-        const items = [];
+        const bill_date=document.getElementById('bill_date').value;
+        // document.querySelectorAll('#invoice-items-table tbody tr').forEach(row => {
+        //     const item_id = row.querySelector('select').value;
+        //     const amount = row.querySelector('input.item-amount').value;
 
-        document.querySelectorAll('#invoice-items-table tbody tr').forEach(row => {
-            const item_id = row.querySelector('select').value;
-            const amount = row.querySelector('input.item-amount').value;
-
-            if (item_id && amount) {
-                items.push({
-                    payroll_item_id: parseInt(item_id),
-                    amount: parseFloat(amount)
-                });
-            }
-        });
+        //     if (item_id && amount) {
+        //         items.push({
+        //             payroll_item_id: parseInt(item_id),
+        //             amount: parseFloat(amount)
+        //         });
+        //     }
+        // });
 
         const data = {
             employee_id,
             invoice_total,
+            bill_date,
             status,
             remarks,
             items
         }
-        //sending dat to the database
+        console.log(data);
+        //sending data to the database
         try {
+            console.log(data);
             const response = await fetch('http://127.0.0.1:8000/api/payroll_invoices', {
                 method: "POST",
                 headers: {
@@ -198,10 +200,11 @@
             alert('Successfully created!')
 
             //redirecting to the manage page
+             window.location.assign("{{ route('payroll_invoices.index') }}");
             console.log(result);
         } catch (err) {
             alert('Error creating Money invoice!')
-            console.log(`Failed to crate Money invoice: ${err}`);
+            console.log(`Failed to create Money invoice: ${err}`);
         }
 
         console.log(data);
@@ -211,6 +214,7 @@
     const employeeSelect = document.getElementById('employee_id');
     const remarks = document.getElementById('remarks');
     const total_amount = document.getElementById('total-amount');
+    let items=[];
 
     employeeSelect.addEventListener("change", async () => {
         const response = await fetch(
@@ -229,12 +233,15 @@
             remarks.value = data.remarks;
             total_amount.textContent = data.salary_total;
             showItems(data.details);
+
+            //i want to set the data.details to the items variable 
+            items=data.details;
+
         } else {
             console.log("Salary not found");
             alert('Salary Not found!');
         }
     });
-
     //show items
     function showItems(items) {
         const tbody = document.getElementById('tbody');
@@ -257,6 +264,8 @@
             `;
             tbody.appendChild(tr);
         })
+
+        return items;
     }
 </script>
 @endsection

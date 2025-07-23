@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Salary;
 use Illuminate\Http\Request;
+use App\Models\PayrollInvoiceDetail;
+use App\Models\PayrollInvoice;
 
 class PayrollInvoiceController extends Controller
 {
@@ -56,7 +58,24 @@ class PayrollInvoiceController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $invoice = new PayrollInvoice();
+        $invoice->employee_id = $request->employee_id;
+        $invoice->invoice_total = $request->invoice_total;
+        $invoice->bill_date = $request->bill_date;
+        $invoice->status = $request->status;
+        $invoice->remarks = $request->remarks;
+        $invoice->created_at = now();
+        $invoice->save();
+
+        foreach ($request->items as $item) {
+            $detail = new PayrollInvoiceDetail();
+            $detail->invoice_id = $invoice->id;
+            $detail->payroll_item_id = $item['payroll_item_id'];
+            $detail->amount = $item['amount'];
+            $detail->save();
+        }
+
+        return response()->json(['success' => true, 'invoice_id' => $invoice->id]);
     }
 
     /**

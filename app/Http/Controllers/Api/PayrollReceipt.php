@@ -15,7 +15,7 @@ class PayrollReceipt extends Controller
     public function index()
     {
         // $receipts = PayrollReceipt::with(['employee', 'details.item'])->latest()->get();
-        return PayrolReceipts::all();
+        return payroll_receipts::all();
         response()->json($receipts);
     }
 

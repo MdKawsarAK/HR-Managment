@@ -70,7 +70,17 @@ class LeaveConfigController extends Controller
 
         return redirect()->route('leave_configs.index')->with('success', 'Leave configuration updated successfully!');
     }
+       public function show(string $id)
+    {
+        $config = LeaveConfig::with(['employee', 'category'])->findOrFail($id);
+                return view('pages.leave_configs.view', compact('config'));
+    }
 
+    //     public function show($id)
+    // {
+    //     $invoice = PayrollInvoice::with(['employee', 'details.item'])->findOrFail($id);
+    //     return view('pages.payroll.invoices.show', compact('invoice'));
+    // }
     // Delete config
     public function destroy($id)
     {

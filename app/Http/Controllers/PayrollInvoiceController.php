@@ -58,7 +58,7 @@ public function create()
             $this->storeInvoiceDetails($invoice->id, $request->items);
 
             DB::commit();
-            return redirect()->route('payroll-invoices.index')
+            return redirect()->route('payroll_invoices.index')
                 ->with('success', 'Payroll invoice created successfully.');
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -84,7 +84,7 @@ public function create()
         $invoice->details()->delete(); // delete child rows first
         $invoice->delete();
 
-        return redirect()->route('payroll-invoices.index')
+        return redirect()->route('payroll_invoices.index')
             ->with('success', 'Invoice deleted successfully.');
     }
 

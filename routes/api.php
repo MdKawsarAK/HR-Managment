@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DistrictsController;
 use App\Http\Controllers\Api\LeaveApplication;
 use App\Http\Controllers\Api\PayrollInvoiceController;
 use App\Http\Controllers\Api\PayrollReceipt;
+use App\Models\PayrollInvoice;
 
 // find leaves
 Route::get('/leave_count',[LeaveApplication::class,'getLeaveCount']);
@@ -39,4 +40,4 @@ Route::apiResources([
 // ]);
 Route::apiResource('districts', districtsController::class);
 Route::apiResource('payroll_receipt', PayrollReceipt::class);
-Route::apiResource('payroll_invoices', PayrollReceipt::class);
+Route::apiResource('payroll_invoices', PayrollInvoiceController::class);

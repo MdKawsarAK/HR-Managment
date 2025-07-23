@@ -194,7 +194,7 @@
                 alert('Successfully created!')
 
                 //redirecting to the manage page
-                window.location.assign('{{ route('payroll_receipts.index') }}');
+                window.location.assign(route('payroll_receipts.index'));
                 console.log(result);
             } catch (err) {
                 alert('Error creating Money receipt!')

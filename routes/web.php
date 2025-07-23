@@ -52,7 +52,7 @@ Route::resource('attendancemethods', App\Http\Controllers\AttendancemethodContro
 
 
 // Route::resource('/invoices', App\Http\Controllers\PayrollInvoiceController::class);
-Route::resource('payroll-invoices', PayrollInvoiceController::class);
+Route::resource('payroll_invoices', PayrollInvoiceController::class);
 Route::resource('payroll_receipts', PayrollReceiptController::class);
 Route::get('leaves/report', [LeaveReportController::class, 'index'])->name('leaves.report');
 

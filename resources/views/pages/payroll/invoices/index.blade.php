@@ -6,7 +6,7 @@
     <div class="card bg-primary text-white mb-4 shadow-sm">
         <div class="card-body d-flex justify-content-between align-items-center">
             <h3 class="card-title m-0">Payroll Invoice List</h3>
-            <a href="{{ route('payroll-invoices.create') }}" class="btn btn-light btn-sm">
+            <a href="{{ route('payroll_invoices.create') }}" class="btn btn-light btn-sm">
                 <i class="fa fa-plus mr-1"></i> Create New Invoice
             </a>
         </div>
@@ -68,8 +68,8 @@
                             <td>{{ ucfirst($invoice->status) }}</td>
                             <td>{{ $invoice->remarks }}</td>
                             <td>
-                                <a href="{{ route('payroll-invoices.show', $invoice->id) }}" class="btn btn-sm btn-primary">View</a>
-                                <form action="{{ route('payroll-invoices.destroy', $invoice->id) }}" method="POST" class="d-inline">
+                                <a href="{{ route('payroll_invoices.show', $invoice->id) }}" class="btn btn-sm btn-primary">View</a>
+                                <form action="{{ route('payroll_invoices.destroy', $invoice->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>

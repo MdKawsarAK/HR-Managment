@@ -33,6 +33,8 @@
                         <td>{{ $cfg->category->name }}</td>
                         <td>{{ $cfg->days }}</td>
                         <td>
+    <a href="{{ route('leave_configs.show', $cfg->id) }}" class="btn btn-sm btn-info">View</a>
+
                             <a href="{{ route('leave_configs.edit', $cfg->id) }}" class="btn btn-sm btn-warning">
                                 <i class="fa fa-edit"></i>
                             </a>
