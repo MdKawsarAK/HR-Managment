@@ -217,13 +217,13 @@
           </a>
           <ul class="nav nav-treeview">
             <li class="nav-item">
-              <a href="{{url('payroll-invoices/create')}}" class="nav-link">
+              <a href="{{url('payroll_invoices/create')}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Create Employee Bills</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="{{url('payroll-invoices')}}" class="nav-link">
+              <a href="{{url('payroll_invoices')}}" class="nav-link">
                 <i class="far fa-circle nav-icon"></i>
                 <p>Employee Bills</p>
               </a>
