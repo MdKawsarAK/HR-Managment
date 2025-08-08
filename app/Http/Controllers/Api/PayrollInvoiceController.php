@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace App\Http\Controllers\Api;
 
@@ -10,11 +10,11 @@ use App\Models\PayrollInvoice;
 
 class PayrollInvoiceController extends Controller
 {
-
-
     public function getSalaryConfig(Request $request)
     {
-        $salary = Salary::with('details.payroll_item')->where('employee_id', $request->id)->get();
+        $salary = Salary::with('details.payroll_item')
+            ->where('employee_id', $request->id)
+            ->get();
 
         if ($salary->isEmpty()) {
             return response()->json(['found' => false]);
@@ -44,13 +44,13 @@ class PayrollInvoiceController extends Controller
         return response()->json(['found' => true, 'salary' => $data]);
     }
 
-
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $invoices = PayrollInvoice::with('details.payroll_item')->latest()->get();
+        return response()->json($invoices);
     }
 
     /**
@@ -58,6 +58,16 @@ class PayrollInvoiceController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'employee_id' => 'required|integer',
+            'invoice_total' => 'required|numeric',
+            'bill_date' => 'required|date',
+            'status' => 'required|string',
+            'items' => 'required|array',
+            'items.*.payroll_item_id' => 'required|integer',
+            'items.*.amount' => 'required|numeric',
+        ]);
+
         $invoice = new PayrollInvoice();
         $invoice->employee_id = $request->employee_id;
         $invoice->invoice_total = $request->invoice_total;
@@ -83,7 +93,13 @@ class PayrollInvoiceController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $invoice = PayrollInvoice::with('details.payroll_item')->find($id);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'Invoice not found'], 404);
+        }
+
+        return response()->json($invoice);
     }
 
     /**
@@ -91,7 +107,43 @@ class PayrollInvoiceController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $invoice = PayrollInvoice::find($id);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'Invoice not found'], 404);
+        }
+
+        $request->validate([
+            'employee_id' => 'required|integer',
+            'invoice_total' => 'required|numeric',
+            'bill_date' => 'required|date',
+            'status' => 'required|string',
+            'items' => 'required|array',
+            'items.*.payroll_item_id' => 'required|integer',
+            'items.*.amount' => 'required|numeric',
+        ]);
+
+        $invoice->employee_id = $request->employee_id;
+        $invoice->invoice_total = $request->invoice_total;
+        $invoice->bill_date = $request->bill_date;
+        $invoice->status = $request->status;
+        $invoice->remarks = $request->remarks;
+        $invoice->updated_at = now();
+        $invoice->save();
+
+        // Delete old details
+        PayrollInvoiceDetail::where('invoice_id', $invoice->id)->delete();
+
+        // Insert new details
+        foreach ($request->items as $item) {
+            $detail = new PayrollInvoiceDetail();
+            $detail->invoice_id = $invoice->id;
+            $detail->payroll_item_id = $item['payroll_item_id'];
+            $detail->amount = $item['amount'];
+            $detail->save();
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -99,6 +151,15 @@ class PayrollInvoiceController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $invoice = PayrollInvoice::find($id);
+
+        if (!$invoice) {
+            return response()->json(['error' => 'Invoice not found'], 404);
+        }
+
+        PayrollInvoiceDetail::where('invoice_id', $invoice->id)->delete();
+        $invoice->delete();
+
+        return response()->json(['success' => true]);
     }
 }

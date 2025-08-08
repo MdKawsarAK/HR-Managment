@@ -25,8 +25,9 @@ class PayrollInvoiceDetail extends Model
         return $this->belongsTo(PayrollInvoice::class, 'invoice_id');
     }
 
-    public function item()
-    {
-        return $this->belongsTo(PayrollItem::class, 'item_id'); // You should create PayrollItem model/table
-    }
+    public function payroll_item()
+{
+    return $this->belongsTo(PayrollItem::class, 'item_id');
+}
+
 }

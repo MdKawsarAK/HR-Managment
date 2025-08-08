@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Api\HR\Employee;
+use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
@@ -15,7 +16,7 @@ class EmployeeController extends Controller
     public function index()
     {
         $employees = Employee::orderBy('id', 'desc')->paginate(10);
-        return json_encode(["invoice" => "test invoice"]);
+        return response()->json($employees);
     }
 
     /**
@@ -23,46 +24,114 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $employees = new Employee();
+        $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'nullable|string|max:100',
+            'category_id' => 'required|integer',
+            'email'      => 'nullable|email|max:150|unique:employees,email',
+            'status'     => 'required|string|max:50',
+            'salary'     => 'nullable|numeric',
+            'phone'      => 'nullable|string|max:20',
+            'nid'        => 'nullable|string|max:50',
+            'gender'     => 'nullable|string|max:20',
+            'address'    => 'nullable|string',
+            'dob'        => 'nullable|date',
+            'blood_id'   => 'nullable|integer',
+            'photo'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
 
-        $employees->first_name = $request->first_name;
-        $employees->last_name = $request->last_name;
-        $employees->category_id = $request->category_id;
-        $employees->hire_date = date("Y-m-d H:i:s");
-        $employees->email = $request->email;
-        $employees->created_at =  now();
-        $employees->updated_at =  now();
-        $employees->status = $request->status;
-        $employees->salary = $request->salary;
-        $employees->phone = $request->phone;
-        $employees->nid = $request->nid;
-        $employees->gender = $request->gender;
-        $employees->address = $request->address;
-        $employees->dob = $request->dob;
-        $employees->blood_id = $request->blood_id;
+        $employee = new Employee();
+        $employee->first_name  = $request->first_name;
+        $employee->last_name   = $request->last_name;
+        $employee->category_id = $request->category_id;
+        $employee->hire_date   = now();
+        $employee->email       = $request->email;
+        $employee->created_at  = now();
+        $employee->updated_at  = now();
+        $employee->status      = $request->status;
+        $employee->salary      = $request->salary;
+        $employee->phone       = $request->phone;
+        $employee->nid         = $request->nid;
+        $employee->gender      = $request->gender;
+        $employee->address     = $request->address;
+        $employee->dob         = $request->dob;
+        $employee->blood_id    = $request->blood_id;
 
         if ($request->hasFile('photo')) {
-            $employees['photo'] = $request->file('photo')->store('uploads', 'public');
+            $employee->photo = $request->file('photo')->store('uploads', 'public');
         }
 
+        $employee->save();
 
-
-
-        return response()->json(['message' => 'Employee created successfully.'], 200);
+        return response()->json(['success' => true, 'message' => 'Employee created successfully.']);
     }
-
 
     /**
      * Display the specified resource.
      */
-    public function show(Request $request) {}
+    public function show(string $id)
+    {
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        return response()->json($employee);
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name'  => 'nullable|string|max:100',
+            'category_id' => 'required|integer',
+            'email'      => 'nullable|email|max:150|unique:employees,email,' . $id,
+            'status'     => 'required|string|max:50',
+            'salary'     => 'nullable|numeric',
+            'phone'      => 'nullable|string|max:20',
+            'nid'        => 'nullable|string|max:50',
+            'gender'     => 'nullable|string|max:20',
+            'address'    => 'nullable|string',
+            'dob'        => 'nullable|date',
+            'blood_id'   => 'nullable|integer',
+            'photo'      => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $employee->first_name  = $request->first_name;
+        $employee->last_name   = $request->last_name;
+        $employee->category_id = $request->category_id;
+        $employee->email       = $request->email;
+        $employee->status      = $request->status;
+        $employee->salary      = $request->salary;
+        $employee->phone       = $request->phone;
+        $employee->nid         = $request->nid;
+        $employee->gender      = $request->gender;
+        $employee->address     = $request->address;
+        $employee->dob         = $request->dob;
+        $employee->blood_id    = $request->blood_id;
+        $employee->updated_at  = now();
+
+        if ($request->hasFile('photo')) {
+            // Delete old photo
+            if ($employee->photo && Storage::disk('public')->exists($employee->photo)) {
+                Storage::disk('public')->delete($employee->photo);
+            }
+            $employee->photo = $request->file('photo')->store('uploads', 'public');
+        }
+
+        $employee->save();
+
+        return response()->json(['success' => true, 'message' => 'Employee updated successfully.']);
     }
 
     /**
@@ -70,6 +139,19 @@ class EmployeeController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $employee = Employee::find($id);
+
+        if (!$employee) {
+            return response()->json(['error' => 'Employee not found'], 404);
+        }
+
+        // Delete photo if exists
+        if ($employee->photo && Storage::disk('public')->exists($employee->photo)) {
+            Storage::disk('public')->delete($employee->photo);
+        }
+
+        $employee->delete();
+
+        return response()->json(['success' => true, 'message' => 'Employee deleted successfully.']);
     }
 }
